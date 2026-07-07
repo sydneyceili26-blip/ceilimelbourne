@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { Trash2, ShieldAlert, ExternalLink, Shield, ShieldOff, UserCog, History, CheckCircle, XCircle, Clock, BarChart2 } from "lucide-react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Trash2, ShieldAlert, ExternalLink, Shield, ShieldOff, UserCog, History, CheckCircle, XCircle, Clock, BarChart2, MessageCircle } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useAuth } from "@/contexts/AuthContext";
@@ -75,11 +75,13 @@ interface PendingItem {
   author: string | null;
   category: string | null;
   created_at: string;
+  owner_id?: string | null;
 }
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const { isModerator, isAdmin, loading: roleLoading } = useUserRoles();
+  const navigate = useNavigate();
 
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [listings, setListings] = useState<ListingRow[]>([]);
@@ -150,13 +152,13 @@ const Admin = () => {
 
   const loadPending = async () => {
     const [{ data: pListings }, { data: pRequests }, { data: pQuestions }, { data: pRegional }] = await Promise.all([
-      supabase.from("listings").select("id,title,category,contact_name,created_at").eq("status", "pending").order("created_at", { ascending: true }),
+      supabase.from("listings").select("id,title,category,contact_name,owner_id,created_at").eq("status", "pending").order("created_at", { ascending: true }),
       supabase.from("requests").select("id,title,category,contact_name,created_at").eq("status", "pending").order("created_at", { ascending: true }),
       supabase.from("questions").select("id,title,author_name,created_at").eq("status", "pending").order("created_at", { ascending: true }),
       supabase.from("regional_posts").select("id,title,category,author_name,created_at").eq("status", "pending").order("created_at", { ascending: true }),
     ]);
     const items: PendingItem[] = [
-      ...((pListings ?? []) as any[]).map((r) => ({ id: r.id, title: r.title, type: "listing" as const, author: r.contact_name, category: r.category, created_at: r.created_at })),
+      ...((pListings ?? []) as any[]).map((r) => ({ id: r.id, title: r.title, type: "listing" as const, author: r.contact_name, category: r.category, created_at: r.created_at, owner_id: r.owner_id })),
       ...((pRequests ?? []) as any[]).map((r) => ({ id: r.id, title: r.title, type: "request" as const, author: r.contact_name, category: r.category, created_at: r.created_at })),
       ...((pQuestions ?? []) as any[]).map((r) => ({ id: r.id, title: r.title, type: "question" as const, author: r.author_name, category: null, created_at: r.created_at })),
       ...((pRegional ?? []) as any[]).map((r) => ({ id: r.id, title: r.title, type: "regional_post" as const, author: r.author_name, category: r.category, created_at: r.created_at })),
@@ -229,6 +231,24 @@ const Admin = () => {
       </div>
     );
   }
+
+  const contactPoster = async (listingId: string, ownerId: string) => {
+    if (!user) return;
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("listing_id", listingId)
+      .eq("starter_id", user.id)
+      .maybeSingle();
+    if (existing?.id) { navigate(`/messages/${existing.id}`); return; }
+    const { data: created, error } = await supabase
+      .from("conversations")
+      .insert({ listing_id: listingId, starter_id: user.id, owner_id: ownerId })
+      .select("id")
+      .single();
+    if (error || !created) return toast({ title: "Couldn't start chat", description: error?.message, variant: "destructive" });
+    navigate(`/messages/${created.id}`);
+  };
 
   const dismissReport = async (r: ReportRow) => {
     const { error } = await supabase.from("reports").delete().eq("id", r.id);
@@ -422,6 +442,11 @@ const Admin = () => {
                         )}
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        {item.type === "listing" && item.owner_id && item.owner_id !== user?.id && (
+                          <Button variant="outline" size="sm" title="Message poster" onClick={() => contactPoster(item.id, item.owner_id!)}>
+                            <MessageCircle className="h-4 w-4" /> Message
+                          </Button>
+                        )}
                         <Button asChild variant="outline" size="sm">
                           <Link to={viewHref[item.type]} state={{ from: "admin" }}><ExternalLink className="h-4 w-4" /> View</Link>
                         </Button>
@@ -507,6 +532,11 @@ const Admin = () => {
                       <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">{formatDistanceToNow(new Date(l.created_at), { addSuffix: true })}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          {l.owner_id && l.owner_id !== user?.id && (
+                            <Button variant="outline" size="sm" title="Message poster" onClick={() => contactPoster(l.id, l.owner_id!)}>
+                              <MessageCircle className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button asChild variant="outline" size="sm">
                             <Link to={`/listing/${l.id}`}><ExternalLink className="h-4 w-4" /></Link>
                           </Button>

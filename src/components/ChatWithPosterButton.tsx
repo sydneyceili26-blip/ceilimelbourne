@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { MessageCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { useState } from “react”;
+import { useNavigate } from “react-router-dom”;
+import { MessageCircle } from “lucide-react”;
+import { supabase } from “@/integrations/supabase/client”;
+import { useAuth } from “@/contexts/AuthContext”;
+import { Button } from “@/components/ui/button”;
+import { toast } from “@/hooks/use-toast”;
 
 interface Props {
   listingId: string;
@@ -19,7 +19,7 @@ const ChatWithPosterButton = ({ listingId, ownerId }: Props) => {
   if (!ownerId) return null;
   if (user && user.id === ownerId) {
     return (
-      <div className="rounded-md border border-dashed border-border bg-secondary/40 p-3 text-center text-xs text-muted-foreground">
+      <div className=”rounded-md border border-dashed border-border bg-secondary/40 p-3 text-center text-xs text-muted-foreground”>
         This is your own listing - buyers will see a “Chat with poster” button here.
       </div>
     );
