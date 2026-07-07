@@ -16,7 +16,7 @@ interface ConversationRow {
   id: string;
   listing_id: string;
   starter_id: string;
-  owner_id: string;
+  owner_id: string | null;
   last_message_at: string;
 }
 
@@ -78,12 +78,16 @@ const Messages = () => {
     }
 
     const allRefIds = Array.from(new Set(rows.map((r) => r.listing_id)));
-    const otherIds = Array.from(new Set(rows.map((r) => (r.starter_id === user.id ? r.owner_id : r.starter_id))));
+    const otherIds = Array.from(new Set(
+      rows.map((r) => (r.starter_id === user.id ? r.owner_id : r.starter_id)).filter((id): id is string => id !== null)
+    ));
 
     const [{ data: listings }, { data: requests }, { data: profiles }] = await Promise.all([
       supabase.from("listings").select("id,title").in("id", allRefIds),
       supabase.from("requests").select("id,title").in("id", allRefIds),
-      supabase.from("profiles").select("id,display_name,avatar_url").in("id", otherIds),
+      otherIds.length > 0
+        ? supabase.from("profiles").select("id,display_name,avatar_url").in("id", otherIds)
+        : Promise.resolve({ data: [] }),
     ]);
 
     const listingTitleById = new Map((listings ?? []).map((l): [string, string] => [l.id, l.title]));
@@ -92,14 +96,14 @@ const Messages = () => {
 
     const view: ConvoView[] = rows.map((r) => {
       const otherId = r.starter_id === user.id ? r.owner_id : r.starter_id;
-      const p = profileById.get(otherId);
+      const p = otherId ? profileById.get(otherId) : null;
       const isRequest = !listingTitleById.has(r.listing_id) && requestTitleById.has(r.listing_id);
       return {
         ...r,
         listing_title: listingTitleById.get(r.listing_id) ?? requestTitleById.get(r.listing_id) ?? "Post",
         ref_is_request: isRequest,
-        other_id: otherId,
-        other_name: p?.display_name ?? "User",
+        other_id: otherId ?? "",
+        other_name: p?.display_name ?? (otherId ? "User" : "Anonymous poster"),
         other_avatar: p?.avatar_url ?? null,
       };
     });

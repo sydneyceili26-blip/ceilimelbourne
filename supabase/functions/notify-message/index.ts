@@ -47,15 +47,28 @@ Deno.serve(async (req) => {
     if (!convo) return new Response("Conversation not found", { status: 200, headers: CORS });
 
     const recipientId = record.sender_id === convo.starter_id ? convo.owner_id : convo.starter_id;
-    console.log("4. sender:", record.sender_id, "recipient:", recipientId, "same?", recipientId === record.sender_id);
+    console.log("4. sender:", record.sender_id, "recipient:", recipientId ?? "null (anonymous)");
 
-    if (recipientId === record.sender_id) return new Response("Self-message", { status: 200, headers: CORS });
+    if (recipientId && recipientId === record.sender_id) return new Response("Self-message", { status: 200, headers: CORS });
 
-    const { data: authData, error: authError } = await admin.auth.admin.getUserById(recipientId);
-    const recipient = authData?.user;
-    console.log("5. recipient email:", recipient?.email ?? "none", authError?.message ?? "");
+    let recipientEmail: string | null = null;
 
-    if (!recipient?.email) return new Response("No recipient email", { status: 200, headers: CORS });
+    if (recipientId) {
+      const { data: authData, error: authError } = await admin.auth.admin.getUserById(recipientId);
+      recipientEmail = authData?.user?.email ?? null;
+      console.log("5. recipient email:", recipientEmail ?? "none", authError?.message ?? "");
+    } else {
+      // Anonymous poster — fall back to listing_contacts email
+      const { data: contactRow } = await admin
+        .from("listing_contacts")
+        .select("contact_email")
+        .eq("listing_id", convo.listing_id)
+        .maybeSingle();
+      recipientEmail = contactRow?.contact_email ?? null;
+      console.log("5. anonymous listing, contact_email:", recipientEmail ?? "none");
+    }
+
+    if (!recipientEmail) return new Response("No recipient email", { status: 200, headers: CORS });
 
     const [{ data: senderProfile }, { data: listing }, { data: requestRow }] = await Promise.all([
       admin.from("profiles").select("display_name").eq("id", record.sender_id).maybeSingle(),
@@ -65,7 +78,7 @@ Deno.serve(async (req) => {
 
     const senderName = senderProfile?.display_name ?? "Someone";
     const listingTitle = listing?.title ?? requestRow?.title ?? "your post";
-    console.log("6. sender name:", senderName, "listing title:", listingTitle, "sending to:", recipient.email);
+    console.log("6. sender name:", senderName, "listing title:", listingTitle, "sending to:", recipientEmail);
 
     const preview = record.body.length > 300 ? record.body.slice(0, 300) + "…" : record.body;
     const replyUrl = `https://ceilimelbourne.com/messages/${record.conversation_id}`;
@@ -78,7 +91,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: "Céilí Melbourne <noreply@ceilimelbourne.com>",
-        to: [recipient.email],
+        to: [recipientEmail],
         subject: `${senderName} sent you a message on Céilí Melbourne`,
         headers: {
           "List-Unsubscribe": `<https://ceilimelbourne.com>`,
