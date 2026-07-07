@@ -17,7 +17,6 @@ import { toast } from "sonner";
 const schema = z.object({
   title: z.string().trim().min(5, "Add a clearer title").max(160),
   body: z.string().trim().min(10, "Add a bit more detail").max(4000),
-  author_name: z.string().trim().max(80).optional(),
   category: z.enum(["jobs", "housing", "general"]),
   region: z.string().optional(),
 });
@@ -53,19 +52,19 @@ const PostRegional = () => {
     const parsed = schema.safeParse({
       title: String(f.get("title") ?? ""),
       body: String(f.get("body") ?? ""),
-      author_name: String(f.get("author_name") ?? ""),
       category,
       region: region || undefined,
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSubmitting(true);
     const v = parsed.data;
+    const authorName = (user?.user_metadata?.display_name as string | undefined) || null;
     const { data, error } = await supabase
       .from("regional_posts")
       .insert({
         title: v.title,
         body: v.body,
-        author_name: v.author_name || null,
+        author_name: authorName,
         category: v.category,
         region: v.region || null,
         owner_id: user?.id ?? null,
@@ -78,7 +77,7 @@ const PostRegional = () => {
     setSubmitting(false);
     if (error) { toast.error("Couldn't post — try again."); return; }
     toast.success("Post submitted — an admin will review it shortly.");
-    supabase.functions.invoke("notify-new-post", { body: { title: v.title, type: "regional_post", authorName: v.author_name || null, authorUserId: user?.id ?? null } });
+    supabase.functions.invoke("notify-new-post", { body: { title: v.title, type: "regional_post", authorName, authorUserId: user?.id ?? null } });
     navigate("/my-posts");
   };
 
@@ -152,11 +151,6 @@ const PostRegional = () => {
                     : "Share what you know — the more detail the better."
                 }
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="author_name">Your name <span className="text-muted-foreground">(optional)</span></Label>
-              <Input id="author_name" name="author_name" maxLength={80} placeholder="Leave blank to post as Anonymous" />
             </div>
 
             <div className="space-y-2">

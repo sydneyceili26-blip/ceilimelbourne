@@ -15,7 +15,6 @@ import { rememberMyPost } from "@/lib/myPosts";
 
 const schema = z.object({
   title: z.string().trim().min(10, "Add a clearer question").max(160),
-  author_name: z.string().trim().max(80).optional(),
 });
 
 const AskQuestion = () => {
@@ -33,23 +32,21 @@ const AskQuestion = () => {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const parsed = schema.safeParse({
-      title: String(f.get("title") ?? ""),
-      author_name: String(f.get("author_name") ?? ""),
-    });
+    const parsed = schema.safeParse({ title: String(f.get("title") ?? "") });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSubmitting(true);
     const v = parsed.data;
+    const authorName = (user?.user_metadata?.display_name as string | undefined) || null;
     const { data, error } = await supabase
       .from("questions")
-      .insert({ title: v.title, body: v.title, author_name: v.author_name || null })
+      .insert({ title: v.title, body: v.title, author_name: authorName })
       .select("id")
       .single();
     setSubmitting(false);
     if (error) { toast.error("Couldn't post - try again."); return; }
     rememberMyPost("question", data.id);
     toast.success("Question submitted — an admin will review it shortly.");
-    supabase.functions.invoke("notify-new-post", { body: { title: v.title, type: "question", authorName: v.author_name || null, authorUserId: user?.id ?? null } });
+    supabase.functions.invoke("notify-new-post", { body: { title: v.title, type: "question", authorName, authorUserId: user?.id ?? null } });
     navigate("/my-posts");
   };
 
@@ -68,10 +65,6 @@ const AskQuestion = () => {
             <div className="space-y-2">
               <Label htmlFor="title">Question</Label>
               <Input id="title" name="title" required maxLength={160} placeholder="e.g. Best suburb for someone new working in the CBD?" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="author_name">Name <span className="text-muted-foreground">(optional - leave blank to post as Anonymous)</span></Label>
-              <Input id="author_name" name="author_name" maxLength={80} placeholder="e.g. Saoirse" />
             </div>
             <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}

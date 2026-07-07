@@ -21,7 +21,6 @@ interface Answer { id: string; body: string; author_name: string | null; created
 
 const replySchema = z.object({
   body: z.string().trim().min(2, "Reply is too short").max(4000),
-  author_name: z.string().trim().max(80).optional(),
 });
 
 const QuestionDetail = () => {
@@ -63,15 +62,13 @@ const QuestionDetail = () => {
     e.preventDefault();
     if (!id) return;
     const f = new FormData(e.currentTarget);
-    const parsed = replySchema.safeParse({
-      body: String(f.get("body") ?? ""),
-      author_name: String(f.get("author_name") ?? ""),
-    });
+    const parsed = replySchema.safeParse({ body: String(f.get("body") ?? "") });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSubmitting(true);
+    const authorName = (user?.user_metadata?.display_name as string | undefined) || null;
     const { data, error } = await supabase
       .from("answers")
-      .insert({ question_id: id, body: parsed.data.body, author_name: parsed.data.author_name || null })
+      .insert({ question_id: id, body: parsed.data.body, author_name: authorName })
       .select("id")
       .single();
     setSubmitting(false);
