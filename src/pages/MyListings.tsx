@@ -93,7 +93,7 @@ const MyListings = () => {
 
   const renew = async (id: string) => {
     const newExpiry = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString();
-    const { error } = await supabase.from("listings").update({ expires_at: newExpiry }).eq("id", id);
+    const { error } = await supabase.from("listings").update({ expires_at: newExpiry, expiry_notified_at: null }).eq("id", id);
     if (error) return toast.error("Couldn't renew");
     toast.success("Renewed for 60 more days");
     refresh();
