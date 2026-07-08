@@ -14,6 +14,7 @@ import FavouriteButton from "@/components/FavouriteButton";
 import ReportDialog from "@/components/ReportDialog";
 import ChatWithPosterButton from "@/components/ChatWithPosterButton";
 import ScamWarning from "@/components/ScamWarning";
+import AdBanner from "@/components/AdBanner";
 import UserAvatar from "@/components/UserAvatar";
 import { formatDistanceToNow } from "date-fns";
 import type { Listing } from "@/components/ListingCard";
@@ -314,6 +315,7 @@ const ListingDetail = () => {
             </div>
 
             <ScamWarning variant="compact" className="mt-4" />
+            <AdBanner slot="4140904024" className="mt-4" />
 
             <div className="mt-5 border-t border-border pt-5">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Share this listing</p>

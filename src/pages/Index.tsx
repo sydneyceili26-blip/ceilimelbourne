@@ -6,6 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ListingCard, { type Listing } from "@/components/ListingCard";
+import AdBanner from "@/components/AdBanner";
 import { type CategoryKey } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -153,14 +154,20 @@ const Index = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {listings.map((l) => (
-                  <ListingCard
-                    key={l.id}
-                    listing={l}
-                    href={l.isRegional ? `/regional/${l.id}` : l.isRequest ? `/request/${l.id}` : undefined}
-                    isRequest={l.isRequest}
-                  />
-                ))}
+                {listings.flatMap((l, i) => {
+                  const card = (
+                    <ListingCard
+                      key={l.id}
+                      listing={l}
+                      href={l.isRegional ? `/regional/${l.id}` : l.isRequest ? `/request/${l.id}` : undefined}
+                      isRequest={l.isRequest}
+                    />
+                  );
+                  if ((i + 1) % 6 === 0 && i !== listings.length - 1) {
+                    return [card, <div key={`ad-${i}`} className="col-span-full"><AdBanner slot="3482393089" /></div>];
+                  }
+                  return [card];
+                })}
               </div>
             )}
           </div>
