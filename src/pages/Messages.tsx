@@ -239,7 +239,7 @@ const Messages = () => {
                 No conversations yet. Open a listing and tap “Chat with poster”.
               </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-border max-h-80 overflow-y-auto">
                 {convos.map((c) => (
                   <li key={c.id}>
                     <Link

@@ -155,7 +155,7 @@ const MyListings = () => {
                     </span>
                   )}
                   <div className="absolute bottom-3 right-3 flex gap-2">
-                    {!l.isRequest && (expired || expiringSoon) && (
+                    {!l.isRequest && !l.isRegional && l.expires_at && (
                       <Button variant="outline" size="sm" className="bg-background" onClick={() => renew(l.id)}>
                         <RefreshCw className="h-4 w-4" /> Renew
                       </Button>

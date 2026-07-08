@@ -17,6 +17,7 @@ const Auth = () => {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isRecovery, setIsRecovery] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
@@ -77,6 +78,12 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setBusy(false);
       if (error) return toast.error(error.message);
+      if (!rememberMe) {
+        // Remove the persisted token so session doesn't survive a page refresh.
+        Object.keys(localStorage)
+          .filter(k => k.startsWith("sb-") && k.endsWith("-auth-token"))
+          .forEach(k => localStorage.removeItem(k));
+      }
       toast.success("Welcome back!");
       navigate("/");
     } else {
@@ -141,6 +148,16 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" name="password" type="password" required />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="remember_me"
+                      checked={rememberMe}
+                      onCheckedChange={(v) => setRememberMe(v === true)}
+                    />
+                    <Label htmlFor="remember_me" className="text-sm font-normal text-muted-foreground cursor-pointer">
+                      Remember me
+                    </Label>
                   </div>
                   <Button type="submit" variant="hero" className="w-full" disabled={busy}>
                     {busy && <Loader2 className="h-4 w-4 animate-spin" />} Sign in
