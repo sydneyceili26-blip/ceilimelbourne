@@ -91,6 +91,9 @@ const Admin = () => {
   const [activity, setActivity] = useState<ActivityRow[]>([]);
   const [pendingItems, setPendingItems] = useState<PendingItem[]>([]);
   const [pageViews, setPageViews] = useState<{ page: string; created_at: string }[]>([]);
+  const [viewsToday, setViewsToday] = useState(0);
+  const [viewsWeek, setViewsWeek] = useState(0);
+  const [viewsMonth, setViewsMonth] = useState(0);
   const [listingQuery, setListingQuery] = useState("");
   const [questionQuery, setQuestionQuery] = useState("");
   const [regionalQuery, setRegionalQuery] = useState("");
@@ -176,14 +179,21 @@ const Admin = () => {
   };
 
   const loadPageViews = async () => {
-    const since = new Date();
-    since.setDate(since.getDate() - 30);
-    const { data } = await supabase
-      .from("page_views")
-      .select("page,created_at")
-      .gte("created_at", since.toISOString())
-      .order("created_at", { ascending: false });
-    setPageViews((data as any) ?? []);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfToday); startOfWeek.setDate(startOfWeek.getDate() - 6);
+    const since30 = new Date(); since30.setDate(since30.getDate() - 30);
+
+    const [{ count: today }, { count: week }, { count: month }, { data: rows }] = await Promise.all([
+      supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", startOfToday.toISOString()),
+      supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", startOfWeek.toISOString()),
+      supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", since30.toISOString()),
+      supabase.from("page_views").select("page,created_at").gte("created_at", since30.toISOString()).order("created_at", { ascending: false }).limit(10000),
+    ]);
+    setViewsToday(today ?? 0);
+    setViewsWeek(week ?? 0);
+    setViewsMonth(month ?? 0);
+    setPageViews((rows as any) ?? []);
   };
 
   const loadAll = async () => {
@@ -741,10 +751,6 @@ const Admin = () => {
             {(() => {
               const now = new Date();
               const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-              const startOfWeek = new Date(startOfToday); startOfWeek.setDate(startOfWeek.getDate() - 6);
-              const todayViews = pageViews.filter(v => new Date(v.created_at) >= startOfToday).length;
-              const weekViews = pageViews.filter(v => new Date(v.created_at) >= startOfWeek).length;
-              const totalViews = pageViews.length;
 
               // daily breakdown last 14 days
               const days: { label: string; count: number }[] = [];
@@ -765,9 +771,9 @@ const Admin = () => {
                 <div className="space-y-6">
                   <div className="grid gap-4 sm:grid-cols-3">
                     {[
-                      { label: "Views today", value: todayViews },
-                      { label: "Views this week", value: weekViews },
-                      { label: "Views last 30 days", value: totalViews },
+                      { label: "Views today", value: viewsToday },
+                      { label: "Views this week", value: viewsWeek },
+                      { label: "Views last 30 days", value: viewsMonth },
                     ].map(s => (
                       <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-soft text-center">
                         <p className="text-3xl font-bold font-display">{s.value}</p>
