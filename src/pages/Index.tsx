@@ -11,20 +11,18 @@ import { type CategoryKey } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
 
 const HERO_IMAGES: { src: string; position: string }[] = [
-  { src: "/hero/1.jpg",  position: "center 70%" },   // harbour sailboats
-  { src: "/hero/2.jpg",  position: "center 85%" },   // Coogee sunset
-  { src: "/hero/4.jpg",  position: "center 65%" },   // Bondi Icebergs
-  { src: "/hero/6.jpg",  position: "center 65%" },   // Harbour Bridge sunset
-  { src: "/hero/7.jpg",  position: "center 60%" },   // bench
-  { src: "/hero/8.jpg",  position: "center 65%" },   // Blue Mountains
-  { src: "/hero/9.jpg",  position: "center center" }, // coastal aerial (landscape)
-  { src: "/hero/10.jpg", position: "center center" }, // SCG stadium (landscape)
-  { src: "/hero/11.jpg", position: "center 65%" },   // Palmy Beach aerial
-  { src: "/hero/12.jpg", position: "center 85%" },   // Coogee rainbow
-  { src: "/hero/13.jpg", position: "center 55%" },   // Opera House night
-  { src: "/hero/14.jpg", position: "center 60%" },   // rock pool sunset
-  { src: "/hero/15.jpg", position: "center 50%" },   // Harbour Bridge from street
-  { src: "/hero/16.jpg", position: "center 70%" },   // sunset crowd
+  { src: "/hero/1.jpg",  position: "center 60%" },   // Albert Park Lake sunset with palms + skyline
+  { src: "/hero/2.jpg",  position: "center 40%" },   // Brighton beach boxes
+  { src: "/hero/3.jpg",  position: "center 65%" },   // Great Ocean Road coastal view
+  { src: "/hero/4.jpg",  position: "center center" }, // Melbourne GP (landscape)
+  { src: "/hero/5.jpg",  position: "center 45%" },   // Albert Park Lake dawn reflection
+  { src: "/hero/6.jpg",  position: "center 40%" },   // Melbourne Town Hall / Collins St
+  { src: "/hero/7.jpg",  position: "center 40%" },   // Yarra River from bridge
+  { src: "/hero/8.jpg",  position: "center 50%" },   // tram on street
+  { src: "/hero/9.jpg",  position: "center 35%" },   // concert at Palais Theatre
+  { src: "/hero/10.jpg", position: "center 60%" },   // Williamstown rocky beach sunset
+  { src: "/hero/11.jpg", position: "center 50%" },   // Albert Park Lake daytime
+  { src: "/hero/12.jpg", position: "center 55%" },   // Port Melbourne/St Kilda sunset
 ];
 
 type FeedItem = Listing & { isRequest?: boolean; isRegional?: boolean };
