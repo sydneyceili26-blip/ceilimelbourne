@@ -79,7 +79,7 @@ const MapView = () => {
     [pins, filter],
   );
 
-  const cats: (CategoryKey | "all")[] = ["all", "room", "sublet", "lease_takeover", "job", "for_sale", "service", "event", "car", "sports_wellness"];
+  const cats: (CategoryKey | "all")[] = ["all", "sublet", "lease_takeover", "job", "for_sale", "service", "event", "car", "sports_wellness"];
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-warm">
