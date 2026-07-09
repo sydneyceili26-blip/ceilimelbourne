@@ -49,7 +49,7 @@ const MapView = () => {
         supabase
           .from("requests")
           .select("id,title,category,suburb")
-          .eq("status", "approved")
+          .not("status", "eq", "rejected")
           .not("suburb", "is", null),
         supabase.from("suburb_coords").select("suburb,lat,lng"),
       ]);
