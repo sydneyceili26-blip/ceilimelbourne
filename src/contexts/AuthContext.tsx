@@ -19,8 +19,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Resolve the initial session first, then watch for changes.
     // Using getSession() to set the initial state avoids a brief "loading"
     // flash that could occur if the listener fires before the session is ready.
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (
+        data.session &&
+        localStorage.getItem("ceili_no_persist") === "1" &&
+        !sessionStorage.getItem("ceili_session_active")
+      ) {
+        await supabase.auth.signOut();
+        localStorage.removeItem("ceili_no_persist");
+        setSession(null);
+      } else {
+        setSession(data.session);
+      }
       setLoading(false);
     });
 

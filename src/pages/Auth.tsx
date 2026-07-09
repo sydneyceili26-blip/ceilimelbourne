@@ -79,10 +79,10 @@ const Auth = () => {
       setBusy(false);
       if (error) return toast.error(error.message);
       if (!rememberMe) {
-        // Remove the persisted token so session doesn't survive a page refresh.
-        Object.keys(localStorage)
-          .filter(k => k.startsWith("sb-") && k.endsWith("-auth-token"))
-          .forEach(k => localStorage.removeItem(k));
+        sessionStorage.setItem("ceili_session_active", "1");
+        localStorage.setItem("ceili_no_persist", "1");
+      } else {
+        localStorage.removeItem("ceili_no_persist");
       }
       toast.success("Welcome back!");
       navigate("/");
