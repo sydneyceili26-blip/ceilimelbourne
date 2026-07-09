@@ -66,21 +66,21 @@ const Guide = () => {
             <Tile
               icon={Home}
               title="Finding a room"
-              body="Most share houses go via inspection. Bring ID, proof of income or savings, and references if you have them."
+              body="Melbourne's rental market moves fast. Most share houses go via inspection — bring ID and references if you have them. Tram and train access is worth factoring in."
               to="/c/housing"
               cta="Browse housing"
             />
             <Tile
               icon={Briefcase}
               title="Finding work"
-              body="Hospitality, trades and admin roles turn over fast. A TFN, an Aussie phone number and a one-page CV go a long way."
+              body="Hospitality, construction, healthcare and admin roles turn over fast. A TFN, an Aussie phone number and a one-page CV go a long way."
               to="/c/jobs"
               cta="Browse jobs"
             />
             <Tile
               icon={Users}
               title="Meeting people"
-              body="GAA clubs, trad sessions, surf meetups, language exchanges - there's a tribe for everyone here."
+              body="GAA clubs, trad sessions, footy crowds, live music and comedy nights — Melbourne has a tribe for everyone, and the social scene rivals anywhere in the world."
               to="/c/social"
               cta="Browse social"
             />
@@ -91,7 +91,7 @@ const Guide = () => {
           <h2 className="font-display text-2xl font-semibold">Posting a great listing</h2>
           <ul className="mt-4 grid gap-3 text-sm md:grid-cols-2">
             {[
-              "Use a clear, specific title (e.g. \"Sunny double room in Bondi - $380/wk incl. bills\")",
+              "Use a clear, specific title (e.g. \"Sunny double room in Fitzroy - $280/wk incl. bills\")",
               "Add 3–6 real photos taken on your phone, in natural light",
               "Mention the suburb, nearest train/bus, and any move-in date",
               "Be upfront about bills, bond, lease length and house rules",
@@ -178,12 +178,12 @@ const Tile = ({ icon: Icon, title, body, to, cta }: { icon: any; title: string; 
 );
 
 const SUBURBS = [
-  { name: "Bondi & Coogee", note: "Beachy, social, lots of share houses - pricier rent, easy bus into the city." },
-  { name: "Inner West (Newtown, Marrickville)", note: "Music, pubs, multicultural food. Train lines everywhere." },
-  { name: "North Shore (Crows Nest, Neutral Bay)", note: "Quieter, leafy, family-friendly, quick ferry to the CBD." },
-  { name: "Surry Hills & Darlinghurst", note: "Café culture and nightlife - small rooms, big atmosphere." },
-  { name: "Manly & Northern Beaches", note: "Surf and ferries. Further out, but a lifestyle of its own." },
-  { name: "Parramatta & West", note: "Better value rent, big Irish/UK/NZ communities, fast trains east." },
+  { name: "Fitzroy & Collingwood", note: "Trendy, artsy, great cafés and bars. Short tram ride to the CBD and a big Irish presence." },
+  { name: "St Kilda", note: "Beachy and social. Strong Irish/UK community, good trams and a great vibe for newcomers." },
+  { name: "Brunswick & Coburg", note: "Multicultural, affordable and creative. Big music and food scene north of the city." },
+  { name: "Richmond & Prahran", note: "Café culture, close to the MCG and Chapel Street. Great tram and train access." },
+  { name: "South Yarra & Toorak", note: "Upmarket and polished, close to the arts precinct. Pricier, but central and well-connected." },
+  { name: "Footscray & West", note: "Best value rent close to the city. Vibrant multicultural community and improving fast." },
 ];
 
 const FAQS = [
@@ -191,7 +191,7 @@ const FAQS = [
   { q: "Do I need an account?", a: "You can browse without one. An account lets you save favourites, manage your listings and report scams." },
   { q: "How long do listings stay up?", a: "60 days by default. You can renew yours for another 60 days from the My posts page anytime." },
   { q: "I'm being scammed - what do I do?", a: "Hit Report on the listing, stop all contact, and never send money. If you've already paid, contact your bank immediately and report it to Scamwatch (scamwatch.gov.au)." },
-  { q: "Who runs Céilí Melbourne?", a: "A small team of newcomers who got tired of dodgy Facebook groups. We're community-first, ad-free, and listening - drop us a line anytime." },
+  { q: "Who runs Céilí Melbourne?", a: "A small team of newcomers who got tired of dodgy Facebook groups. We're community-first and listening - drop us a line anytime." },
 ];
 
 export default Guide;
