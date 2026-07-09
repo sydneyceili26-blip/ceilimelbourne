@@ -94,6 +94,7 @@ const Admin = () => {
   const [viewsToday, setViewsToday] = useState(0);
   const [viewsWeek, setViewsWeek] = useState(0);
   const [viewsMonth, setViewsMonth] = useState(0);
+  const [dailyViews, setDailyViews] = useState<{ label: string; count: number }[]>([]);
   const [listingQuery, setListingQuery] = useState("");
   const [questionQuery, setQuestionQuery] = useState("");
   const [regionalQuery, setRegionalQuery] = useState("");
@@ -184,16 +185,34 @@ const Admin = () => {
     const startOfWeek = new Date(startOfToday); startOfWeek.setDate(startOfWeek.getDate() - 6);
     const since30 = new Date(); since30.setDate(since30.getDate() - 30);
 
-    const [{ count: today }, { count: week }, { count: month }, { data: rows }] = await Promise.all([
-      supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", startOfToday.toISOString()),
-      supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", startOfWeek.toISOString()),
-      supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", since30.toISOString()),
-      supabase.from("page_views").select("page,created_at").gte("created_at", since30.toISOString()).order("created_at", { ascending: false }).limit(10000),
+    const dayBoundaries = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date(startOfToday); d.setDate(d.getDate() - (13 - i));
+      const next = new Date(d); next.setDate(next.getDate() + 1);
+      return { d, next, label: d.toLocaleDateString("en-AU", { day: "numeric", month: "short" }) };
+    });
+
+    const [summaryResults, dayResults, { data: rows }] = await Promise.all([
+      Promise.all([
+        supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", startOfToday.toISOString()),
+        supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", startOfWeek.toISOString()),
+        supabase.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", since30.toISOString()),
+      ]),
+      Promise.all(
+        dayBoundaries.map(({ d, next }) =>
+          supabase.from("page_views").select("*", { count: "exact", head: true })
+            .gte("created_at", d.toISOString())
+            .lt("created_at", next.toISOString())
+        )
+      ),
+      supabase.from("page_views").select("page,created_at").gte("created_at", since30.toISOString()).order("created_at", { ascending: false }),
     ]);
+
+    const [{ count: today }, { count: week }, { count: month }] = summaryResults;
     setViewsToday(today ?? 0);
     setViewsWeek(week ?? 0);
     setViewsMonth(month ?? 0);
     setPageViews((rows as any) ?? []);
+    setDailyViews(dayBoundaries.map(({ label }, i) => ({ label, count: dayResults[i].count ?? 0 })));
   };
 
   const loadAll = async () => {
@@ -749,20 +768,10 @@ const Admin = () => {
 
           <TabsContent value="analytics" className="mt-6">
             {(() => {
-              const now = new Date();
-              const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-              // daily breakdown last 14 days
-              const days: { label: string; count: number }[] = [];
-              for (let i = 13; i >= 0; i--) {
-                const d = new Date(startOfToday); d.setDate(d.getDate() - i);
-                const next = new Date(d); next.setDate(next.getDate() + 1);
-                const count = pageViews.filter(v => { const t = new Date(v.created_at); return t >= d && t < next; }).length;
-                days.push({ label: d.toLocaleDateString("en-AU", { day: "numeric", month: "short" }), count });
-              }
+              const days = dailyViews;
               const maxDay = Math.max(...days.map(d => d.count), 1);
 
-              // top pages
+              // top pages from fetched rows (approximation from most recent 1000 views)
               const pageCounts: Record<string, number> = {};
               pageViews.forEach(v => { pageCounts[v.page] = (pageCounts[v.page] ?? 0) + 1; });
               const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
