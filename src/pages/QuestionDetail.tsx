@@ -212,7 +212,7 @@ const QuestionDetail = () => {
                         {a.author_name?.trim() || "Anonymous"} ·{" "}
                         {formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}
                       </p>
-                      {isMyPost("answer", a.id) && editingId !== a.id && (
+                      {(isMyPost("answer", a.id) || isModerator) && editingId !== a.id && (
                         <div className="flex gap-1">
                           <Button variant="ghost" size="sm" onClick={() => { setEditingId(a.id); setEditBody(a.body); }} className="h-7 px-2 text-xs text-muted-foreground">
                             <Pencil className="h-3.5 w-3.5" /> Edit
