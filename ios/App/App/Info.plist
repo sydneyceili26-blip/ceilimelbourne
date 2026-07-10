@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>Sydney Céilí</string>
+        <string>Melbourne Céilí</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -49,5 +49,13 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Céilí Melbourne uses your camera so you can take photos to include in your listings.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Céilí Melbourne uses your photo library so you can choose existing photos for your listings.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Céilí Melbourne may save photos to your library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Céilí Melbourne needs microphone access when recording video for listings.</string>
 </dict>
 </plist>
