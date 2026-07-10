@@ -317,28 +317,35 @@ const PostListing = () => {
           </Link>
           <h1 className="mt-4 font-display text-3xl font-bold md:text-4xl">{isEdit ? "Edit listing" : "Make a post"}</h1>
           {!isEdit && (
-  <div className="mt-4 flex rounded-xl border border-border bg-card p-1 max-w-xs">
-    <button
-      type="button"
-      onClick={() => setMode("listing")}
-      className={`flex-1 rounded-lg py-2 text-sm font-medium transition-smooth ${
-        mode === "listing" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      Listing
-    </button>
-    <button
-      type="button"
-      onClick={() => setMode("request")}
-      className={`flex-1 rounded-lg py-2 text-sm font-medium transition-smooth ${
-        mode === "request" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      Request
-    </button>
-  </div>
+  <>
+    <div className="mt-4 flex rounded-xl border border-border bg-card p-1 max-w-sm">
+      <button
+        type="button"
+        onClick={() => setMode("listing")}
+        className={`flex-1 rounded-lg py-2 text-sm font-medium transition-smooth ${
+          mode === "listing" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        I'm offering something
+      </button>
+      <button
+        type="button"
+        onClick={() => setMode("request")}
+        className={`flex-1 rounded-lg py-2 text-sm font-medium transition-smooth ${
+          mode === "request" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        I'm looking for something
+      </button>
+    </div>
+    <p className="mt-2 text-sm text-muted-foreground">
+      {mode === "listing"
+        ? "You have a room, job, item, or service to offer."
+        : "You're searching for a room, job, item, or service."}
+    </p>
+  </>
 )}
-          {!isEdit && <p className="mt-2 text-muted-foreground">Posts are reviewed by an admin before going live.</p>}
+          {!isEdit && <p className="mt-1 text-xs text-muted-foreground">Posts are reviewed by an admin before going live.</p>}
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
             <div className="space-y-2">
