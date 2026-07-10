@@ -9,6 +9,7 @@ import ListingCard, { type Listing } from "@/components/ListingCard";
 import AdBanner from "@/components/AdBanner";
 import { type CategoryKey } from "@/lib/categories";
 import { supabase } from "@/integrations/supabase/client";
+import { useBlockedUsers } from "@/hooks/useBlockedUsers";
 
 const HERO_IMAGES: { src: string; position: string }[] = [
   { src: "/hero/1.jpg",  position: "center 60%" },   // Albert Park Lake sunset with palms + skyline
@@ -28,6 +29,7 @@ const HERO_IMAGES: { src: string; position: string }[] = [
 type FeedItem = Listing & { isRequest?: boolean; isRegional?: boolean };
 
 const Index = () => {
+  const { blockedIds } = useBlockedUsers();
   const [listings, setListings] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -152,7 +154,7 @@ const Index = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {listings.flatMap((l, i) => {
+                {listings.filter(l => !l.owner_id || !blockedIds.has(l.owner_id)).flatMap((l, i) => {
                   const card = (
                     <ListingCard
                       key={l.id}

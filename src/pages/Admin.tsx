@@ -83,6 +83,7 @@ const Admin = () => {
   const { isModerator, isAdmin, loading: roleLoading } = useUserRoles();
   const navigate = useNavigate();
 
+  const [blocks, setBlocks] = useState<{ id: string; blocker_id: string; blocked_id: string; created_at: string; blocker_name: string | null; blocked_name: string | null }[]>([]);
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [listings, setListings] = useState<ListingRow[]>([]);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
@@ -170,6 +171,15 @@ const Admin = () => {
     setPendingItems(items);
   };
 
+  const loadBlocks = async () => {
+    const { data: blockRows } = await supabase.from("blocked_users").select("id,blocker_id,blocked_id,created_at").order("created_at", { ascending: false }).limit(200);
+    if (!blockRows?.length) { setBlocks([]); return; }
+    const ids = Array.from(new Set([...blockRows.map((b: any) => b.blocker_id), ...blockRows.map((b: any) => b.blocked_id)]));
+    const { data: profiles } = await supabase.from("profiles").select("id,display_name").in("id", ids);
+    const nameById = new Map((profiles ?? []).map((p: any) => [p.id, p.display_name]));
+    setBlocks(blockRows.map((b: any) => ({ ...b, blocker_name: nameById.get(b.blocker_id) ?? null, blocked_name: nameById.get(b.blocked_id) ?? null })));
+  };
+
   const loadActivity = async () => {
     const { data } = await supabase
       .from("admin_activity_log")
@@ -225,6 +235,7 @@ const Admin = () => {
       loadPending(),
       loadActivity(),
       loadPageViews(),
+      loadBlocks(),
       isAdmin ? loadUsers() : Promise.resolve(),
     ]);
     setLoading(false);
@@ -427,6 +438,7 @@ const Admin = () => {
             <TabsTrigger value="questions">Questions ({questions.length})</TabsTrigger>
             <TabsTrigger value="regional">Regional ({regionalPosts.length})</TabsTrigger>
             {isAdmin && <TabsTrigger value="users">Users ({users.length})</TabsTrigger>}
+            <TabsTrigger value="blocks">Blocks ({blocks.length})</TabsTrigger>
             <TabsTrigger value="activity"><History className="h-4 w-4 mr-1" /> Activity</TabsTrigger>
             <TabsTrigger value="analytics"><BarChart2 className="h-4 w-4 mr-1" /> Analytics</TabsTrigger>
           </TabsList>
@@ -725,6 +737,32 @@ const Admin = () => {
               <p className="mt-3 text-xs text-muted-foreground">User accounts themselves can only be deleted from Lovable Cloud's backend dashboard for safety.</p>
             </TabsContent>
           )}
+
+          <TabsContent value="blocks" className="mt-6">
+            <div className="rounded-2xl border border-border bg-card shadow-soft">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Blocked by</TableHead>
+                    <TableHead>Blocked user</TableHead>
+                    <TableHead className="hidden sm:table-cell">When</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {blocks.length === 0 ? (
+                    <TableRow><TableCell colSpan={3} className="text-center text-sm text-muted-foreground">No blocks yet</TableCell></TableRow>
+                  ) : blocks.map((b) => (
+                    <TableRow key={b.id}>
+                      <TableCell className="text-sm">{b.blocker_name ?? b.blocker_id.slice(0, 8)}</TableCell>
+                      <TableCell className="text-sm font-medium">{b.blocked_name ?? b.blocked_id.slice(0, 8)}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">{formatDistanceToNow(new Date(b.created_at), { addSuffix: true })}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">Each block hides that user's content from the blocker's feed. Review blocked users and take action within 24 hours of any report.</p>
+          </TabsContent>
 
           <TabsContent value="activity" className="mt-6">
             <div className="rounded-2xl border border-border bg-card shadow-soft">

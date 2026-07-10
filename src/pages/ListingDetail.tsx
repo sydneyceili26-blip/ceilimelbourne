@@ -12,7 +12,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import FavouriteButton from "@/components/FavouriteButton";
 import ReportDialog from "@/components/ReportDialog";
+import BlockButton from "@/components/BlockButton";
 import ChatWithPosterButton from "@/components/ChatWithPosterButton";
+import { useBlockedUsers } from "@/hooks/useBlockedUsers";
 import ScamWarning from "@/components/ScamWarning";
 import AdBanner from "@/components/AdBanner";
 import UserAvatar from "@/components/UserAvatar";
@@ -36,6 +38,7 @@ const ListingDetail = () => {
   const { state: navState } = useLocation();
   const { user } = useAuth();
   const { isModerator } = useUserRoles();
+  const { blockedIds, blockUser, unblockUser } = useBlockedUsers();
   const [listing, setListing] = useState<FullListing | null>(null);
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(true);
@@ -352,6 +355,18 @@ const ListingDetail = () => {
               <FavouriteButton listingId={listing.id} variant="full" />
               <ReportDialog listingId={listing.id} />
             </div>
+            {user && listing.owner_id && user.id !== listing.owner_id && (
+              <div className="mt-3">
+                <BlockButton
+                  blockedIds={blockedIds}
+                  userId={listing.owner_id}
+                  userName={listing.contact_name}
+                  onBlock={blockUser}
+                  onUnblock={unblockUser}
+                  className="w-full"
+                />
+              </div>
+            )}
             {(user && user.id === listing.owner_id || isModerator) && (
               <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
                 <Button asChild variant="outline" size="sm" className="w-full">

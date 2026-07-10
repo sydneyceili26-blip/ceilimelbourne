@@ -142,10 +142,21 @@ const Terms = () => {
 
             <h2>9. Content moderation and account termination</h2>
             <p>
+              <strong>Céilí Melbourne has zero tolerance for objectionable content or abusive users.</strong>{" "}
+              Content that is harmful, offensive, sexually explicit, hateful, threatening, or
+              otherwise objectionable will be removed and the responsible account will be suspended
+              or permanently banned. We aim to act on all reports within 24 hours of receipt.
+            </p>
+            <p>
               We may, at our sole discretion and without notice, remove, edit, refuse or
               restrict any listing, message or account, and suspend or terminate access to the
               Platform, for any reason - including suspected breach of these Terms, suspected
               unlawful conduct, or complaints from other users or third parties.
+            </p>
+            <p>
+              Users may report objectionable content using the <strong>Report</strong> button
+              on any listing, and may block abusive users to immediately remove their content
+              from view. Blocking a user notifies our moderation team for review.
             </p>
 
             <h2>10. Privacy</h2>

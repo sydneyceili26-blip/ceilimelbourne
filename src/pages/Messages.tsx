@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Send, MessageCircle, ImagePlus, ExternalLink } from "lucide-react";
+import BlockButton from "@/components/BlockButton";
+import { useBlockedUsers } from "@/hooks/useBlockedUsers";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import SiteHeader from "@/components/SiteHeader";
@@ -42,6 +44,7 @@ const Messages = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  const { blockedIds, blockUser, unblockUser } = useBlockedUsers();
   const [convos, setConvos] = useState<ConvoView[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<ConvoView | null>(null);
@@ -240,7 +243,7 @@ const Messages = () => {
               </div>
             ) : (
               <ul className="divide-y divide-border max-h-80 overflow-y-auto">
-                {convos.map((c) => (
+                {convos.filter(c => !blockedIds.has(c.other_id)).map((c) => (
                   <li key={c.id}>
                     <Link
                       to={`/messages/${c.id}`}
@@ -288,14 +291,23 @@ const Messages = () => {
                     <p className="truncate font-medium">{active.other_name}</p>
                     <p className="truncate text-xs text-muted-foreground">Re: {active.listing_title}</p>
                   </div>
-                  <Button asChild variant="outline" size="sm" className="shrink-0">
-                    <Link
-                      to={active.ref_is_request ? `/request/${active.listing_id}` : `/listing/${active.listing_id}`}
-                      state={{ from: "messages", conversationId: active.id }}
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Back to post</span>
-                    </Link>
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <BlockButton
+                      blockedIds={blockedIds}
+                      userId={active.other_id}
+                      userName={active.other_name}
+                      onBlock={blockUser}
+                      onUnblock={unblockUser}
+                    />
+                    <Button asChild variant="outline" size="sm">
+                      <Link
+                        to={active.ref_is_request ? `/request/${active.listing_id}` : `/listing/${active.listing_id}`}
+                        state={{ from: "messages", conversationId: active.id }}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Back to post</span>
+                      </Link>
+                    </Button>
+                  </div>
                 </header>
 
                 <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
