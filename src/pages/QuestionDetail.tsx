@@ -61,7 +61,8 @@ const QuestionDetail = () => {
   const onReply = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!id) return;
-    const f = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const f = new FormData(form);
     const parsed = replySchema.safeParse({ body: String(f.get("body") ?? "") });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSubmitting(true);
@@ -75,7 +76,7 @@ const QuestionDetail = () => {
     if (error) { toast.error("Couldn't post your reply."); return; }
     const newId = data?.id as string | undefined;
     if (newId) rememberMyPost("answer", newId);
-    (e.currentTarget as HTMLFormElement).reset();
+    form.reset();
     setJustReplied(true);
     setTimeout(() => setJustReplied(false), 4000);
     await load();
