@@ -9,16 +9,20 @@ interface AdBannerProps {
   className?: string;
 }
 
+const isNative = typeof window !== "undefined" && window.location.protocol === "capacitor:";
+
 const AdBanner = ({ slot, className = "" }: AdBannerProps) => {
   const pushed = useRef(false);
 
   useEffect(() => {
-    if (pushed.current) return;
+    if (isNative || pushed.current) return;
     pushed.current = true;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {}
   }, []);
+
+  if (isNative) return null;
 
   return (
     <ins
