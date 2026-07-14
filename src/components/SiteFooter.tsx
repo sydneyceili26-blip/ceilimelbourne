@@ -16,6 +16,7 @@ const SiteFooter = () => (
         </nav>
         <p>A welcoming noticeboard for everyone settling into Melbourne - Fáilte, welcome!</p>
       </div>
+      <p className="mt-6 text-xs text-muted-foreground/60">© {new Date().getFullYear()} Céilí Melbourne™. All rights reserved.</p>
     </div>
   </footer>
 );
