@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { sendApnsPush } from "../_shared/push.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -81,7 +82,7 @@ Deno.serve(async (req) => {
           <p style="color:#999;font-size:12px;margin-top:32px">Céilí Melbourne · <a href="https://ceilimelbourne.com" style="color:#999">ceilimelbourne.com</a></p>
         </div>`;
 
-    const res = await fetch("https://api.resend.com/emails", {
+    const emailPromise = fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
@@ -95,6 +96,23 @@ Deno.serve(async (req) => {
         },
       }),
     });
+
+    const pushPromise = (async () => {
+      const { data: tokens } = await admin
+        .from("push_tokens")
+        .select("token")
+        .eq("user_id", post.owner_id);
+      if (!tokens?.length) return;
+      const pushTitle = isApproved ? "Post approved ✓" : "Post update";
+      const pushBody = isApproved
+        ? `Your post "${postTitle}" is now live!`
+        : `Your post "${postTitle}" wasn't approved this time.`;
+      await Promise.all(
+        tokens.map((t) => sendApnsPush(t.token, { title: pushTitle, body: pushBody }))
+      );
+    })();
+
+    const [res] = await Promise.all([emailPromise, pushPromise]);
     console.log("Resend decision email →", authorEmail, res.status);
 
     return new Response("OK", { status: 200, headers: CORS });

@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { sendApnsPush } from "../_shared/push.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -83,7 +84,7 @@ Deno.serve(async (req) => {
     const preview = record.body.length > 300 ? record.body.slice(0, 300) + "…" : record.body;
     const replyUrl = `https://ceilimelbourne.com/messages/${record.conversation_id}`;
 
-    const emailRes = await fetch("https://api.resend.com/emails", {
+    const emailPromise = fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -109,6 +110,25 @@ Deno.serve(async (req) => {
       }),
     });
 
+    const pushPromise = (async () => {
+      if (!recipientId) return;
+      const { data: tokens } = await admin
+        .from("push_tokens")
+        .select("token")
+        .eq("user_id", recipientId);
+      if (!tokens?.length) return;
+      await Promise.all(
+        tokens.map((t) =>
+          sendApnsPush(
+            t.token,
+            { title: `New message from ${senderName}`, body: preview.slice(0, 100) },
+            { conversationId: record.conversation_id }
+          )
+        )
+      );
+    })();
+
+    const [emailRes] = await Promise.all([emailPromise, pushPromise]);
     const resendBody = await emailRes.text();
     console.log("7. Resend status:", emailRes.status, "body:", resendBody);
 

@@ -35,8 +35,10 @@ import About from "./pages/About.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { usePageTracking } from "./hooks/usePageTracking";
+import { usePushNotifications } from "./hooks/usePushNotifications";
 
 const PageTracker = () => { usePageTracking(); return null; };
+const PushNotificationSetup = () => { usePushNotifications(); return null; };
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,7 @@ const App = () => (
         <AuthProvider>
           <ScrollToTop />
           <PageTracker />
+          <PushNotificationSetup />
           <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Index />} />
