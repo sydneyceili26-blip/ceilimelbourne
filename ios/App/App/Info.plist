@@ -57,5 +57,16 @@
 	<string>Céilí Melbourne may save photos to your library.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Céilí Melbourne needs microphone access when recording video for listings.</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-5768325702216711~1772280039</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to show you more relevant ads.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 </dict>
 </plist>
