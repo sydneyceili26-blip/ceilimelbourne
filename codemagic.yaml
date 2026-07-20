@@ -40,7 +40,7 @@ workflows:
       - name: Set up code signing
         script: xcode-project use-profiles
       - name: Increment build number
-        script: agvtool next-version -all
+        script: cd ios/App && agvtool next-version -all
       - name: Resolve Swift Package dependencies
         script: xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App
       - name: Build .ipa
