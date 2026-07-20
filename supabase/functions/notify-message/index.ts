@@ -119,11 +119,11 @@ Deno.serve(async (req) => {
       if (!tokens?.length) return;
       await Promise.all(
         tokens.map((t) =>
-          sendApnsPush(
-            t.token,
-            { title: `New message from ${senderName}`, body: preview.slice(0, 100) },
-            { conversationId: record.conversation_id }
-          )
+          sendApnsPush(t.token, {
+            title: `New message from ${senderName}`,
+            body: record.body.length > 100 ? record.body.slice(0, 100) + "…" : record.body,
+            data: { conversationId: record.conversation_id },
+          })
         )
       );
     })();
