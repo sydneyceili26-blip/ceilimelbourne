@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { CATEGORY_MAP, JOB_TYPE_MAP, ITEM_TYPE_MAP, formatPrice, type CategoryKey, type JobType, type ItemType } from "@/lib/categories";
 import { formatDistanceToNow } from "date-fns";
 import FavouriteButton from "@/components/FavouriteButton";
@@ -22,12 +23,32 @@ export interface Listing {
 }
 
 const ListingCard = ({ listing, href, isRequest, linkState }: { listing: Listing; href?: string; isRequest?: boolean; linkState?: Record<string, unknown> }) => {
+  const [photoIdx, setPhotoIdx] = useState(0);
+
   const meta = CATEGORY_MAP[listing.category];
   if (!meta) return null;
   const Icon = meta.icon;
   const price = formatPrice(listing.price, listing.category);
-  const cover = listing.image_urls?.[0] ?? listing.image_url;
-  const photoCount = listing.image_urls?.length ?? (listing.image_url ? 1 : 0);
+
+  const photos = (listing.image_urls?.filter(Boolean).length
+    ? listing.image_urls!.filter(Boolean)
+    : listing.image_url
+    ? [listing.image_url]
+    : []) as string[];
+  const photoCount = photos.length;
+  const cover = photos[photoIdx] ?? null;
+
+  const goPrev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPhotoIdx(i => (i - 1 + photoCount) % photoCount);
+  };
+
+  const goNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPhotoIdx(i => (i + 1) % photoCount);
+  };
 
   return (
     <Link
@@ -44,7 +65,7 @@ const ListingCard = ({ listing, href, isRequest, linkState }: { listing: Listing
             src={cover}
             alt={listing.title}
             loading="lazy"
-            className={`h-full w-full transition-smooth ${listing.category === "event" || listing.category === "job" ? "object-contain bg-secondary/40" : "object-cover group-hover:scale-105"}`}
+            className={`h-full w-full transition-smooth ${listing.category === "event" || listing.category === "job" ? "object-contain bg-secondary/40" : "object-cover"}`}
           />
         ) : (
           <div className="grid h-full w-full place-items-center">
@@ -52,9 +73,30 @@ const ListingCard = ({ listing, href, isRequest, linkState }: { listing: Listing
           </div>
         )}
         {photoCount > 1 && (
-          <span className="absolute bottom-3 left-3 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-medium text-muted-foreground backdrop-blur">
-            {photoCount} photos
-          </span>
+          <>
+            <button
+              onClick={goPrev}
+              aria-label="Previous photo"
+              className="absolute left-1.5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white backdrop-blur-sm transition-opacity"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={goNext}
+              aria-label="Next photo"
+              className="absolute right-1.5 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-1 text-white backdrop-blur-sm transition-opacity"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1">
+              {photos.map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 w-1.5 rounded-full ${i === photoIdx ? "bg-white" : "bg-white/45"}`}
+                />
+              ))}
+            </div>
+          </>
         )}
         <span
           className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium backdrop-blur"

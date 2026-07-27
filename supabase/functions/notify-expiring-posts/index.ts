@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({
-        from: "Céilí Melbourne <noreply@ceilisydney.com>",
+        from: "Céilí Melbourne <noreply@ceilimelbourne.com>",
         to: [email],
         subject: `Your listing expires in ${daysLeft} day${daysLeft === 1 ? "" : "s"} — renew now`,
         html: `
