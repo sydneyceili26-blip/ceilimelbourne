@@ -222,19 +222,19 @@ const PostListing = () => {
 
   const placeholders: Record<CategoryKey, { title: string; description: string }> = {
     room: {
-      title: "e.g. Sunny double room in Bondi - Irish household",
+      title: "e.g. Sunny double room in Fitzroy - Irish household",
       description: "Tell people about the room and house - size, furnished or not, who else lives there, bills included, bond, available from, close to which beach/train, house vibe (quiet, social, GAA crowd…).",
     },
     sublet: {
-      title: "e.g. 6-week sublet in Surry Hills - fully furnished",
+      title: "e.g. 6-week sublet in Collingwood - fully furnished",
       description: "Dates available, weekly rent, whether bills are included, type of place (studio, room in share), what's nearby, and why you're subletting (going home for Chrissy, travelling, etc.).",
     },
     lease_takeover: {
-      title: "e.g. Lease takeover - 2-bed apartment in Coogee until Aug",
+      title: "e.g. Lease takeover - 2-bed apartment in St Kilda until Aug",
       description: "Lease end date, weekly rent, bond, what's included, building features, why you're leaving, and any agent/landlord requirements for the takeover.",
     },
     job: {
-      title: "e.g. Full-time carpenter wanted - North Shore sites",
+      title: "e.g. Full-time carpenter wanted - CBD sites",
       description: "Role, hours, pay range, location, sponsorship/visa requirements (417, 482, PR), start date, tickets/licences needed (White Card, RSA…), and how to apply.",
     },
     for_sale: {
@@ -260,11 +260,11 @@ const PostListing = () => {
   };
   const requestPlaceholders: Record<string, { title: string; description: string }> = {
   sublet: {
-    title: "e.g. Looking for a short-term sublet in the Inner West - 4 to 8 weeks",
+    title: "e.g. Looking for a short-term sublet in the Inner North - 4 to 8 weeks",
     description: "Dates you need it for, your budget per week, area preferences, how many people, and anything else useful (furnished, bills included, etc.).",
   },
   lease_takeover: {
-    title: "e.g. Looking to take over a lease in Surry Hills from August",
+    title: "e.g. Looking to take over a lease in Richmond from August",
     description: "When you need to move in, how long you're looking to stay, your budget, preferred area, and any requirements around bond or agent approval.",
   },
   job: {
@@ -276,7 +276,7 @@ const PostListing = () => {
     description: "What you're looking for, your budget, condition you'd accept, and where you can pick up from.",
   },
   service: {
-    title: "e.g. Need a reliable plumber in the Inner West",
+    title: "e.g. Need a reliable plumber in the Inner North",
     description: "What the job is, rough timeline, your suburb, and any specific requirements.",
   },
   car: {
@@ -284,7 +284,7 @@ const PostListing = () => {
     description: "What you need it for, your budget, preferred make/model, rego requirements, and where you're based.",
   },
   event: {
-    title: "e.g. Looking for GAA players in the Eastern Suburbs",
+    title: "e.g. Looking for GAA players in the Inner North",
     description: "What you're organising or looking for, when, where, and who it's for.",
   },
   other: {
@@ -413,7 +413,7 @@ const PostListing = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="suburb">Suburb</Label>
-                <Input id="suburb" name="suburb" maxLength={80} defaultValue={defaults.suburb} placeholder="e.g. Coogee" />
+                <Input id="suburb" name="suburb" maxLength={80} defaultValue={defaults.suburb} placeholder="e.g. Fitzroy" />
               </div>
             </div>
 

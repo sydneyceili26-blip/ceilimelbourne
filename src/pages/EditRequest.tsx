@@ -139,7 +139,7 @@ const EditRequest = () => {
 
             <div className="space-y-2">
               <Label htmlFor="suburb">Suburb</Label>
-              <Input id="suburb" name="suburb" maxLength={80} defaultValue={defaults.suburb} placeholder="e.g. Coogee" />
+              <Input id="suburb" name="suburb" maxLength={80} defaultValue={defaults.suburb} placeholder="e.g. Fitzroy" />
             </div>
 
             <div className="space-y-2">
