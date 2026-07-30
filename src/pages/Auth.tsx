@@ -18,16 +18,14 @@ const Auth = () => {
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [isRecovery, setIsRecovery] = useState(false);
+  const [isRecovery, setIsRecovery] = useState(() => window.location.hash.includes("type=recovery"));
   const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => { document.title = "Sign in - Céilí Melbourne"; }, []);
 
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
-    } else if (hash.includes("type=signup")) {
+    if (hash.includes("type=signup")) {
       toast.success("Email confirmed — you're signed in!");
     }
   }, []);
