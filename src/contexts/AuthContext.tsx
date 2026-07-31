@@ -6,19 +6,19 @@ interface AuthCtx {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isPasswordRecovery: boolean;
+  clearPasswordRecovery: () => void;
   signOut: () => Promise<void>;
 }
 
-const Ctx = createContext<AuthCtx>({ user: null, session: null, loading: true, signOut: async () => {} });
+const Ctx = createContext<AuthCtx>({ user: null, session: null, loading: true, isPasswordRecovery: false, clearPasswordRecovery: () => {}, signOut: async () => {} });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
-    // Resolve the initial session first, then watch for changes.
-    // Using getSession() to set the initial state avoids a brief "loading"
-    // flash that could occur if the listener fires before the session is ready.
     supabase.auth.getSession().then(async ({ data }) => {
       if (
         data.session &&
@@ -34,14 +34,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      if (event === "PASSWORD_RECOVERY") setIsPasswordRecovery(true);
       setSession(s);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
   return (
-    <Ctx.Provider value={{ session, user: session?.user ?? null, loading, signOut: async () => { await supabase.auth.signOut(); } }}>
+    <Ctx.Provider value={{ session, user: session?.user ?? null, loading, isPasswordRecovery, clearPasswordRecovery: () => setIsPasswordRecovery(false), signOut: async () => { await supabase.auth.signOut(); } }}>
       {children}
     </Ctx.Provider>
   );

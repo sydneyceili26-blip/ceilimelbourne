@@ -14,35 +14,19 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPasswordRecovery, clearPasswordRecovery } = useAuth();
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [isRecovery, setIsRecovery] = useState(false);
-  const [authEventChecked, setAuthEventChecked] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => { document.title = "Sign in - Céilí Melbourne"; }, []);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setIsRecovery(true);
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-        setAuthEventChecked(true);
-      }
-      if (event === "SIGNED_IN" && window.location.hash.includes("type=signup")) {
-        toast.success("Email confirmed — you're signed in!");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
   // Don't auto-redirect during password recovery — user needs to set new password first.
   useEffect(() => {
-    if (!authEventChecked) return;
-    if (isRecovery) return;
+    if (isPasswordRecovery) return;
     if (user) navigate("/", { replace: true });
-  }, [user, navigate, isRecovery, authEventChecked]);
+  }, [user, navigate, isPasswordRecovery]);
 
   const onSetNewPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,7 +36,7 @@ const Auth = () => {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Password updated — you're signed in!");
-    setIsRecovery(false);
+    clearPasswordRecovery();
     navigate("/", { replace: true });
   };
 
@@ -116,12 +100,12 @@ const Auth = () => {
           <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Home
           </Link>
-          <h1 className="mt-4 font-display text-3xl font-bold">{isRecovery ? "Set new password" : "Sign in"}</h1>
+          <h1 className="mt-4 font-display text-3xl font-bold">{isPasswordRecovery ? "Set new password" : "Sign in"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isRecovery ? "Choose a new password for your account." : "Optional - accounts let you save favourites and manage your listings."}
+            {isPasswordRecovery ? "Choose a new password for your account." : "Optional - accounts let you save favourites and manage your listings."}
           </p>
 
-          {isRecovery ? (
+          {isPasswordRecovery ? (
             <div className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
               <form onSubmit={onSetNewPassword} className="space-y-4">
                 <div className="space-y-2">
