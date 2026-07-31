@@ -16,7 +16,10 @@ const Ctx = createContext<AuthCtx>({ user: null, session: null, loading: true, i
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('type') === 'recovery';
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
