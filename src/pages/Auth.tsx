@@ -18,23 +18,31 @@ const Auth = () => {
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [isRecovery, setIsRecovery] = useState(() => window.location.hash.includes("type=recovery"));
+  const [isRecovery, setIsRecovery] = useState(false);
+  const [authEventChecked, setAuthEventChecked] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => { document.title = "Sign in - Céilí Melbourne"; }, []);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes("type=signup")) {
-      toast.success("Email confirmed — you're signed in!");
-    }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setIsRecovery(true);
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        setAuthEventChecked(true);
+      }
+      if (event === "SIGNED_IN" && window.location.hash.includes("type=signup")) {
+        toast.success("Email confirmed — you're signed in!");
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Don't auto-redirect during password recovery — user needs to set new password first.
   useEffect(() => {
+    if (!authEventChecked) return;
     if (isRecovery) return;
     if (user) navigate("/", { replace: true });
-  }, [user, navigate, isRecovery]);
+  }, [user, navigate, isRecovery, authEventChecked]);
 
   const onSetNewPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
