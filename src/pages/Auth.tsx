@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, isPasswordRecovery, clearPasswordRecovery } = useAuth();
+  const { user, isPasswordRecovery, clearPasswordRecovery, loading } = useAuth();
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -23,10 +23,12 @@ const Auth = () => {
   useEffect(() => { document.title = "Sign in - Céilí Melbourne"; }, []);
 
   // Don't auto-redirect during password recovery — user needs to set new password first.
+  // Also wait for loading to finish so PASSWORD_RECOVERY event has a chance to fire.
   useEffect(() => {
+    if (loading) return;
     if (isPasswordRecovery) return;
     if (user) navigate("/", { replace: true });
-  }, [user, navigate, isPasswordRecovery]);
+  }, [user, navigate, isPasswordRecovery, loading]);
 
   const onSetNewPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
