@@ -32,6 +32,7 @@ import RegionalPostDetail from "./pages/RegionalPostDetail.tsx";
 import EditRegionalPost from "./pages/EditRegionalPost.tsx";
 import EditQuestion from "./pages/EditQuestion.tsx";
 import About from "./pages/About.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { usePageTracking } from "./hooks/usePageTracking";
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/categories" element={<Categories />} />
             <Route path="/search" element={<Search />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/favourites" element={<Favourites />} />
             <Route path="/my-posts" element={<MyListings />} />
             <Route path="/guide" element={<Guide />} />

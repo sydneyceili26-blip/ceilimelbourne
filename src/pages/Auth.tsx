@@ -14,33 +14,16 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, isPasswordRecovery, clearPasswordRecovery, loading } = useAuth();
+  const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => { document.title = "Sign in - Céilí Melbourne"; }, []);
 
-  // Don't auto-redirect during password recovery — user needs to set new password first.
-  // Also wait for loading to finish so PASSWORD_RECOVERY event has a chance to fire.
   useEffect(() => {
-    if (loading) return;
-    if (isPasswordRecovery) return;
     if (user) navigate("/", { replace: true });
-  }, [user, navigate, isPasswordRecovery, loading]);
-
-  const onSetNewPassword = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (newPassword.length < 6) return toast.error("Password must be at least 6 characters");
-    setBusy(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Password updated — you're signed in!");
-    clearPasswordRecovery();
-    navigate("/", { replace: true });
-  };
+  }, [user, navigate]);
 
   const onForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,7 +32,7 @@ const Auth = () => {
     if (!email) return toast.error("Enter your email address");
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -102,32 +85,11 @@ const Auth = () => {
           <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Home
           </Link>
-          <h1 className="mt-4 font-display text-3xl font-bold">{isPasswordRecovery ? "Set new password" : "Sign in"}</h1>
+          <h1 className="mt-4 font-display text-3xl font-bold">Sign in</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isPasswordRecovery ? "Choose a new password for your account." : "Optional - accounts let you save favourites and manage your listings."}
+            Optional - accounts let you save favourites and manage your listings.
           </p>
 
-          {isPasswordRecovery ? (
-            <div className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
-              <form onSubmit={onSetNewPassword} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="new_password">New password</Label>
-                  <Input
-                    id="new_password"
-                    type="password"
-                    minLength={6}
-                    required
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="At least 6 characters"
-                  />
-                </div>
-                <Button type="submit" variant="hero" className="w-full" disabled={busy}>
-                  {busy && <Loader2 className="h-4 w-4 animate-spin" />} Set new password
-                </Button>
-              </form>
-            </div>
-          ) : (
           <div className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
             <Tabs defaultValue="in">
               <TabsList className="grid w-full grid-cols-2">
@@ -192,7 +154,6 @@ const Auth = () => {
               </TabsContent>
             </Tabs>
           </div>
-          )}
           <p className="mt-4 text-center text-xs text-muted-foreground">
             By continuing you agree to our{" "}
             <Link to="/terms" className="underline hover:text-foreground">Terms</Link> and{" "}
