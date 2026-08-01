@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('type') === 'recovery';
+    return params.get('type') === 'recovery' || window.location.hash.includes('type=recovery');
   });
 
   useEffect(() => {
