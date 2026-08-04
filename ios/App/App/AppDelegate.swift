@@ -25,7 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard !didRequestTracking else { return }
         didRequestTracking = true
         if #available(iOS 14, *) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 ATTrackingManager.requestTrackingAuthorization { _ in }
             }
         }
