@@ -1,7 +1,9 @@
 {
-  "rewrites": [
-    { "source": "/ads.txt", "destination": "/ads.txt" },
-    { "source": "/app-ads.txt", "destination": "/app-ads.txt" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://ceiliofficial.com?city=melbourne",
+      "permanent": true
+    }
   ]
 }
